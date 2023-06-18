@@ -1,0 +1,183 @@
+extends layout
+
+mixin slider(id)
+    div(id='param-'+id class="slider")
+        div.slider-foreground
+        div.slider-value.wide.unselectable 0
+        div.slider-mouse-handler
+
+mixin sliderSection(id, name)
+    div(id='param-'+id class="slider" name=name)
+        div.slider-foreground
+        div.slider-value.unselectable 0
+        div.slider-mouse-handler
+
+mixin param-field(id, label)
+    div.param-field
+        label.param-label.unselectable= label
+        +slider(id)
+
+mixin color-field(id, span, image)
+    div.color-field
+        input(type="image" src="images/textures/" + image class="params-colors__button" id=id)
+        span=span
+
+mixin color-bg-field(id, span, image)
+    div.color-field
+        input(type="image" src="images/textures/" + image class="params-bg-colors__button" id=id)
+        span=span
+
+mixin edge-field(id, span, image)
+    div.color-field.edge-field
+        input(type="button" style="background-image: url(../images/"+image+")" class="params-edge__button" id=id)
+        span=span
+
+mixin plinth-field(id, span, image)
+    div.color-field.plinth-field
+        input(type="button" style="background-image: url(../images/"+image+")" class="params-plinth__button" id=id)
+        span=span
+
+block append head
+    link(rel='stylesheet', href='/stylesheets/editor.css')
+
+block content
+    div.context-menu#context-menu
+        div.context-nav
+            button(class="btn btn-secondary m-1" id="context-close") X
+            button(class="btn btn-light m-1" id="context-open" disabled=true) Open/Close
+            button(class="btn btn-light m-1" id="context-edit" disabled=true) Edit
+            button(class="btn btn-danger m-1" id="context-delete") Delete
+
+    div(class="modal" id="modifier" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true")
+        div.modal-dialog.modal-dialog-centered
+            div.modal-content
+                div.modal-header
+                    h5 Add modifier
+                    button(type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close")
+                div.modal-body
+                    form
+                        div.mb-3
+                            label(for="modifierType" class="form-label") Тип
+                            select(id="modifierType" class="form-select")
+                        button(type="button" class="btn btn-primary" id="add-modifier-button") Add
+                div.modal-footer
+                    button(type="button" class="btn btn-secondary" data-bs-dismiss="modal") Close
+
+    div(class="modal" id="template2d" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true")
+        div.modal-dialog.modal-dialog-centered.template-2d-modal
+            div.modal-content
+                div.modal-header
+                    h5 Product scheme
+                    button(type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close")
+                div.modal-body
+                    div.template-2d-navs
+                        button(type="button" class="template-2d-nav__button active" id="frontView") Front view
+                        button(type="button" class="template-2d-nav__button" id="sideView") Side view
+                        button(type="button" class="template-2d-nav__button" id="topView") View from above
+                        div#template-2d-canvas-placement
+                div.modal-footer
+                    button(type="button" class="btn btn-secondary" data-bs-dismiss="modal") Close
+
+    div.container
+        h2 Constructor a closets
+        p Resize the selected furniture template, add drawers and shelves as desired.
+        div.template-editor.row
+            div.canvas-wrapper.col-md-6.col-sm-12.col.position-relative
+                div(class="justify-content-center align-items-center h-100 loader-bg" style="display: flex; z-index: 9;")
+                    button(class="btn spinner-btn" type="button" disabled)
+                        div.spinner-border.spinner-border-sm(role="status")
+                            span.visually-hidden Loading...
+                div(class="editor-hud__right position-absolute")
+                    button.btn.btn-light.m-2(id="viewmode") View Mode
+                    button.btn.btn-light(id="editmode") Edit Mode
+                div#canvas-placement
+            div.params-wrapper.col-md-6.col-sm-12.col
+                div.params-nav
+                    button(type="button" class="params-nav__button active" id="btn-params-size") Sizes
+                    button(type="button" class="params-nav__button" id="btn-params-color") Color
+                    button(type="button" class="params-nav__button" id="btn-params-opt") Additionally
+                div(class="params-panel" id="params-size")
+                    +param-field('width', 'Width')
+                    +param-field('height', 'Height')
+                    +param-field('depth', 'Depth')
+                    div.param-field
+                        label.param-label.unselectable Sections
+                        +sliderSection('vsection', 'vertical-sec')
+                        +sliderSection('hsection', 'horizontal-sec')
+                    div.param-field
+                        label.param-label.unselectable Edges
+                        +edge-field('wide-edge', '2 mm, in color', 'kromka_tolstaya.jpg')
+                        +edge-field('thin-edge', '0.4 mm, in color', 'kromka_tonkaya.jpg')
+                    div.panels-nav
+                        button(type="button" class="nav-panels-btn right-align classic-editor-btn" name="params-color") Choose color >
+                div(class="params-panel" id="params-color" style="display:none;")
+                    h3 Main color
+                    div.colors-block
+                        +color-field("white-ldsp", "White moisture resistant, 16mm", "white-shagreen.jpg")
+                        +color-field("white-shagreen", "White shagreen, 16mm", "white-shagreen.jpg")
+                        +color-field("black-wenge", "Wenge dark, 16mm", "black-wenge.jpg")
+                        +color-field("gray-ldsp", "Gray, 16mm", "gray-ldsp.jpg")
+                        +color-field("milk-oak", "Milk Oak, 16mm", "milk-oak.jpg")
+                    h3 Back panel
+                    div.colors-block
+                        +color-bg-field("bg-none", "None", "material-no-icon.webp")
+                        +color-bg-field("bg-white-mdf", "White MDF, 3mm", "white-shagreen.jpg")
+                        +color-bg-field("bg-white-shagreen", "White shagreen, 3mm", "white-shagreen.jpg")
+                        +color-bg-field("bg-black-wenge", "Wenge dark, 3mm", "black-wenge.jpg")
+                        +color-bg-field("bg-gray-mdf", "Gray MDF, 3mm", "gray-ldsp.jpg")
+                        +color-bg-field("bg-milk-oak", "Дуб молочный, 3mm", "milk-oak.jpg")
+                    div.panels-nav
+                        button(type="button" class="nav-panels-btn classic-editor-btn" name="params-size") < Sizes
+                        button(type="button" class="nav-panels-btn right-align classic-editor-btn" name="params-opt") Additionally >
+                div(class="params-panel" id="params-opt" style="display:none;")
+                    b Foundation
+                    div.colors-block
+                        +plinth-field("plinth-none", "Without foundation", "plinth-no-photo.webp")
+                        +plinth-field("plinth-normal", "Plinth", "plinth-yes-photo.jpg")
+                        +plinth-field("plinth-legs", "On legs", "legs-type-1.webp")
+                    div.panels-nav
+                        button(type="button" class="nav-panels-btn classic-editor-btn" name="params-color") < Choose color
+                        button(type="button" class="right-align classic-editor-btn") Checkout >
+                div.editor-cost-line
+                    span Total:
+                    a(href="#" class="right-align buy-button-editor cost-text-editor") 0 rub.
+                div.debug-panel
+                    b(style="font-size: 14pt; margin-right: 15px;") Debug Mode
+                    label.switch
+                        input(type="checkbox" onchange="SwitchDebug(this.checked)")
+                        span.debug-switch.round
+        div.row
+            textarea#JSONTextarea JSON
+            button.btn.btn-light.btn-json(id="importjson") Import
+            button.btn.btn-light.btn-json(id="exportjson") Export
+        div.template-description.row.align-items-center.justify-content-between
+            div.col
+                h2 Product parameters
+                p Width:
+                    span#desc-width 1781мм
+                p Height:
+                    span#desc-height 1781мм
+                p Depth:
+                    span#desc-depth 300мм
+                p Plinth height:
+                    span#desc-plinth-height without foundation
+                br
+                p Material:
+                    span#desc-material White, Laminated chipboard 16mm
+                p Back panel:
+                    span#desc-bg-material MDF 3mm, white
+                p Edges:
+                    span#desc-edge Thick 2mm edges in color
+                br
+                p Mass:
+                    span#desc-mass 84,9 kg
+                h3 Price:
+                    span#desc-cost 10240 rub. 00 kop.
+            div.col.template-2d-card
+                div.card.text-dark
+                    input(type="image" src="images/template-2d-background.png" class="card-img")
+                    div.card-img-overlay.align-items-center.justify-content-center.d-flex(data-bs-toggle="modal" data-bs-target="#template2d" id="template2dbtn")
+                        label.card-title Open scheme
+
+block scripts
+    script(src="/javascripts/canvas.js" type="module")

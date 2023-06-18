@@ -1,0 +1,17 @@
+extends layout
+
+block content
+  div.container
+    div.row
+      div.col.primary-box.p-4
+        h1= title
+        p Welcome to #{title}
+        p Fast routes:
+        nav
+          ul.list-group
+            li.list-group.m-1
+              a(href="/" class="link-primary list-group-item list-group-item-action") Home
+            li.list-group.m-1
+              a(href="/editor" class="link-primary list-group-item list-group-item-action") Editor
+            li.list-group.m-1
+              a(href="/info" class="link-primary list-group-item list-group-item-action") Info
